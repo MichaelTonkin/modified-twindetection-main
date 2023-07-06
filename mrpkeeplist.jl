@@ -49,7 +49,7 @@ function make_mrpkeeplist(
         # Tolerance in MRP space. If a point in MRP space is within this distance of a circle then it is a possible twin rotation.
         mrptol = calc_mrptol(sqrt(deltamax^2-rdiff[cld(i,2)]^2),allr_dest_circles[i])
 
-        # Tolerance in MRP "coordinate" space (i.e. zoomed out by 1/resolution) for pixels to be stored
+        # Tolerance in MRP "coordinate" space (i.e. zoomed out by 1/resolution) for voxels to be stored
         # Note that this includes sqrt(3)/2 (a ball around the centre point) as well as an additional component based on mrptol
         coordtol = 0.5*sqrt(3.0) + mrptol/resolution
         if firstround
@@ -65,7 +65,7 @@ function make_mrpkeeplist(
             # Convert this into an angle based on u and v
             theta_mid = atan(dot(centrevec_incircleplane,allu[i]),dot(centrevec_incircleplane,allv[i]))
                            
-            # Create a range based on assuming a straight line with (worst case) length based on going straight through centre of pixel
+            # Create a range based on assuming a straight line with (worst case) length based on going straight through centre of voxel
             thetarange = theta_mid .+ make_relrange(coordtol*resolution/allcircleradius[i],sqrt(3.0)*prevresolution)
         end
 
@@ -100,12 +100,12 @@ function make_mrpkeeplist(
             # MRP locations
             possiblemrps = coordtomrp.(possiblecoords,(relrange,),(centre,))
 
-            # Filter out coordinates where the entire pixel lies outside the unit sphere
+            # Filter out coordinates where the entire voxel lies outside the unit sphere
             insidesphere = norm.(possiblemrps) .≤ 1.0+resolution*sqrt(3.0)/2.0
             possiblecoords = possiblecoords[insidesphere]
             possiblemrps = possiblemrps[insidesphere]
 
-            # Filter out coordinates where the entire pixel lies too far away from the circle
+            # Filter out coordinates where the entire voxel lies too far away from the circle
             closetocircle = fullcircledistcheck.(possiblemrps,(allcirclecentre[i],),(allcirclenormal[i],),allcircleradius[i],coordtol*resolution)
             possiblecoords = possiblecoords[closetocircle]
 
@@ -144,7 +144,7 @@ function make_mrpkeeplist(
         # Tolerance in MRP space. If a point in MRP space is within this distance of a circle then it is a possible twin rotation.
         mrptol = calc_mrptol(deltamax,allr_lines[i])
 
-        # Tolerance in MRP "coordinate" space (i.e. zoomed out by 1/resolution) for pixels to be stored
+        # Tolerance in MRP "coordinate" space (i.e. zoomed out by 1/resolution) for voxels to be stored
         # Note that this includes sqrt(3)/2 (a ball around the centre point) as well as an additional component based on mrptol
         coordtol = 0.5*sqrt(3.0) + mrptol/resolution
         if firstround
@@ -154,7 +154,7 @@ function make_mrpkeeplist(
             # In all other rounds, calculate an smid value based on the closest point between the circle and the centre.
             s_mid = dot(badrefl_lines[i],centre)
 
-            # Create a range based on worst case length based on going straight through centre of pixel
+            # Create a range based on worst case length based on going straight through centre of voxel
             srange = s_mid .+ make_relrange(coordtol*resolution,sqrt(3.0)*prevresolution)
         end
 
@@ -186,12 +186,12 @@ function make_mrpkeeplist(
             # MRP locations
             possiblemrps = coordtomrp.(possiblecoords,(relrange,),(centre,))
 
-            # Filter out coordinates where the entire pixel lies outside the unit sphere
+            # Filter out coordinates where the entire voxel lies outside the unit sphere
             insidesphere = norm.(possiblemrps) .≤ 1.0+resolution*sqrt(3.0)/2.0
             possiblecoords = possiblecoords[insidesphere]
             possiblemrps = possiblemrps[insidesphere]
 
-            # Filter out coordinates where the entire pixel lies too far away from the line
+            # Filter out coordinates where the entire voxel lies too far away from the line
             closetoline = linedistcheck.(possiblemrps,(badrefl_lines[i],),coordtol*resolution)
             possiblecoords = possiblecoords[closetoline]
 
@@ -235,7 +235,7 @@ function make_mrpkeeplist(
         # Tolerance in MRP space. If a point in MRP space is within this distance of a circle then it is a possible twin rotation.
         mrptol = calc_mrptol(deltamax,allr_greatcircle[i])
 
-        # Tolerance in MRP "coordinate" space (i.e. zoomed out by 1/resolution) for pixels to be stored
+        # Tolerance in MRP "coordinate" space (i.e. zoomed out by 1/resolution) for voxels to be stored
         # Note that this includes sqrt(3)/2 (a ball around the centre point) as well as an additional component based on mrptol
         coordtol = 0.5*sqrt(3.0) + mrptol/resolution
         if firstround
@@ -244,13 +244,13 @@ function make_mrpkeeplist(
         else
             # In all other rounds, calculate a thetamid value based on the closest point between the circle and the centre.
 
-            # Find the part of the centre of pixel vector that lies in the plane of the great circle
+            # Find the part of the centre of voxel vector that lies in the plane of the great circle
             centrevec_incircleplane = centre - dot(centre,allnormal_greatcircle[i])*allnormal_greatcircle[i]
 
             # Convert this into an angle based on u and v
             theta_mid = atan(dot(centrevec_incircleplane,allugreatcircle[i]),dot(centrevec_incircleplane,allvgreatcircle[i]))
             
-            # Create a range based on assuming a straight line with (worst case) length based on going straight through centre of pixel
+            # Create a range based on assuming a straight line with (worst case) length based on going straight through centre of voxel
             thetarange = theta_mid .+ make_relrange(coordtol*resolution,sqrt(3.0)*prevresolution)
         end
 
@@ -283,12 +283,12 @@ function make_mrpkeeplist(
             # MRP locations
             possiblemrps = coordtomrp.(possiblecoords,(relrange,),(centre,))
 
-            # Filter out coordinates where the entire pixel lies outside the unit sphere
+            # Filter out coordinates where the entire voxel lies outside the unit sphere
             insidesphere = norm.(possiblemrps) .≤ 1.0+resolution*sqrt(3.0)/2.0
             possiblecoords = possiblecoords[insidesphere]
             possiblemrps = possiblemrps[insidesphere]
 
-            # Filter out coordinates where the entire pixel lies too far away from the circle
+            # Filter out coordinates where the entire voxel lies too far away from the circle
             closetocircle = fullcircledistcheck.(possiblemrps,(SVector{3,Float64}(0,0,0),),(allnormal_greatcircle[i],),1.0,coordtol*resolution)
             possiblecoords = possiblecoords[closetocircle]
 
@@ -313,7 +313,7 @@ function make_mrpkeeplist(
 
 
 
-    # Find MRP values for pixels where value recorded in array is larger than keep criterion
+    # Find MRP values for voxels where value recorded in array is larger than keep criterion
     return coordtomrp.(findall(x->x≥keepcriterion,mrp3darray),(make_relrange(resolution,prevresolution),),(centre,))
 
 end
