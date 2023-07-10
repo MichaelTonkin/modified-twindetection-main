@@ -132,5 +132,20 @@ allr_badrefl = allr[badreflectionindices]
 centre = SVector{3,Float64}(0.0,0.0,0.0)
 
 
-findpoint(resolution,keepcriterion,allu,allv,allphi,allcirclecentre,allcirclenormal,allcircleradius,
-allr_dest,rdiff,badreflloc_normed,allr_badrefl,deltamax,prevresolution,centre)
+# @profile 
+
+testpoint = SVector{3,Float64}(-0.2, 1.0, -0.4)
+
+MRPpoint = findpoint(testpoint,
+allu,
+allcirclecentre,
+allcirclenormal,
+allcircleradius,
+allr_dest,
+rdiff,
+deltamax)
+MRPpoint
+println(MRPpoint)
+
+#plottest2electricboogaloo(resolution,keepcriterion,allu,allv,allphi,allcirclecentre,allcirclenormal,allcircleradius,
+#allr_dest,rdiff,badreflloc_normed,allr_badrefl,deltamax,prevresolution,centre)
