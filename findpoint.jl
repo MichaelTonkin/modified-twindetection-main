@@ -13,10 +13,10 @@ function findpoint(
     # Initialize the overlap count=#
     overlap_count = 0
     mrptol = dist_from_point
-    overlap_count += checkcirclerotations(target_point, mrptol, allcirclecentre, allcirclenormal, allcircleradius, circlestokeep
-    , dist_from_point)
+    overlap_count += checkcirclerotations(target_point, mrptol, allcirclecentre, allcirclenormal, allcircleradius, circlestokeep, dist_from_point)
 
     overlap_count += checklinerotations(target_point, dist_from_point, badreflloc_normed)
+    overlap_count += checkgreatcirclerotations(target_point, dist_from_point, badreflloc_normed)
 
     return overlap_count
 end
@@ -62,6 +62,46 @@ function checklinerotations(target_point, dist_from_point, badreflloc_normed)
         end
     end
     return overlap_count
+end
+
+function checkgreatcirclerotations(target_point, dist_from_point, badreflloc_normed)
+
+    #= Quick loop through all bad reflection points to see which are associated with great circles to keep =#
+    greatcirclestokeep = find_relgreatcircles(badreflloc_normed, 1.0, centre)
+
+    # The number of circles to consider
+    numgreatcircles = length(greatcirclestokeep)
+    overlap_count = 0
+    # Tolerance in MRP space. If a point in MRP space is within this distance of a circle then it is a possible twin rotation.
+    mrptol = dist_from_point
+
+    # Strip out only the great circless to keep
+    allnormal_greatcircle = badreflloc_normed[greatcirclestokeep]
+
+    # For each circle, we will check if the target_point is within the circle
+    for i in 1:numgreatcircles       
+
+        # Check if the target_point is within mrptol of the circle
+        if fullcircledistcheck(target_point, SVector{3,Float64}(0,0,0), allnormal_greatcircle[i], 1.0, 1.0)
+            # If it is, increment the overlap count
+            overlap_count += 1
+        end
+    end
+    return overlap_count
+end
+
+
+# Determine whether a given point is within a given disttol of a given circle (characterised by centre, normal, radius) in mrp space
+function fullcircledistcheck(mrploc,circlecentre,circlenormal,circleradius,disttol)
+
+    # Distance away from plane of circle (given that plane goes through origin)
+    outofplane = dot(mrploc,circlenormal)
+
+    # Vector within plane of circle
+    inplane = mrploc - outofplane*circlenormal
+
+    # Total distance from circle (including out of plane and in-plane parts), and test within disttol
+    outofplane^2 + (norm(inplane-circlecentre)-circleradius)^2 ≤ disttol^2
 end
 
 # Determine whether a given point is within a given disttol of a given circle (characterised by centre, normal, radius) in mrp space
