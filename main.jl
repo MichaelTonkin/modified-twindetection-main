@@ -141,7 +141,10 @@ allu,
 allcirclecentre,
 allcirclenormal,
 allcircleradius,
-allr_dest)
+allr_dest,
+badreflloc_normed,
+0.1)
+
 
 MRPpoint
 println(MRPpoint)
