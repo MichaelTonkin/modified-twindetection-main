@@ -5,28 +5,24 @@ function findpoint(
     allcirclenormal,
     allcircleradius,
     allr_dest,
-    rdiff,
-    deltamax,
+    dist_from_point=0.001 #the distance from the point described where we check for overlaps.
     )
-    ######## CIRCLES FROM PAIRS OF POINTS
-    #=
-    numcircles = length(circlestokeep)
-    allu = allu[circlestokeep]
-    allcirclecentre = allcirclecentre[circlestokeep]
-    allcirclenormal = allcirclenormal[circlestokeep]
-    allcircleradius = allcircleradius[circlestokeep]
-    allr_dest_circles = allr_dest[cld.(circlestokeep,2)]
+
     # Initialize the overlap count=#
     overlap_count = 0
+    mrptol = dist_from_point
+    overlap_count += checkcirclerotations(target_point, mrptol, allu, allcirclecentre, allcirclenormal, allcircleradius)
+    return overlap_count
+end
 
+function checkcirclerotations(target_point, mrptol, allu, allcirclecentre, allcirclenormal, allcircleradius)
     # The number of circles to consider
     numcircles = length(allu)
-
+    overlap_count = 0
     # For each circle, we will check if the target_point is within the circle
     for i in 1:numcircles
         
         # Tolerance in MRP space. If a point in MRP space is within this distance of a circle then it is a possible twin rotation.
-        #mrptol = calc_mrptol(sqrt(deltamax^2-rdiff[cld(i,2)]^2),allr_dest_circles[i])
         mrptol = 0.1
         # Check if the target_point is within mrptol of the circle
         if circledistcheck(target_point, allcirclecentre[i], allcirclenormal[i], allcircleradius[i], mrptol)

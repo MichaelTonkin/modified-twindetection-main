@@ -141,9 +141,8 @@ allu,
 allcirclecentre,
 allcirclenormal,
 allcircleradius,
-allr_dest,
-rdiff,
-deltamax)
+allr_dest)
+
 MRPpoint
 println(MRPpoint)
 
