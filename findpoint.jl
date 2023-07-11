@@ -7,17 +7,18 @@ function findpoint(
     allr_dest,
     dist_from_point=0.001 #the distance from the point described where we check for overlaps.
     )
-
+    centre = SVector{3,Float64}(0.0,0.0,0.0)
+    circlestokeep = find_relcircles(allcirclecentre,allcirclenormal,allcircleradius,1,centre)
     # Initialize the overlap count=#
     overlap_count = 0
     mrptol = dist_from_point
-    overlap_count += checkcirclerotations(target_point, mrptol, allu, allcirclecentre, allcirclenormal, allcircleradius)
+    overlap_count += checkcirclerotations(target_point, mrptol, allu, allcirclecentre, allcirclenormal, allcircleradius, circlestokeep)
     return overlap_count
 end
 
-function checkcirclerotations(target_point, mrptol, allu, allcirclecentre, allcirclenormal, allcircleradius)
+function checkcirclerotations(target_point, mrptol, allu, allcirclecentre, allcirclenormal, allcircleradius, circlestokeep)
     # The number of circles to consider
-    numcircles = length(allu)
+    numcircles = length(circlestokeep)
     overlap_count = 0
     # For each circle, we will check if the target_point is within the circle
     for i in 1:numcircles
