@@ -19,6 +19,27 @@ function findpoint(
     return overlap_count
 end
 
+function findpoint(target_point, options)
+
+    allcirclecentre = options["allcirclecentre"]
+    allcirclenormal = options["allcirclenormal"]
+    allcircleradius = options["allcircleradius"]
+    badreflloc_normed = options["badreflloc_normed"]
+    dist_from_point = options["dist_from_point"]
+
+    centre = SVector{3,Float64}(0.0,0.0,0.0)
+    circlestokeep = find_relcircles(allcirclecentre,allcirclenormal,allcircleradius,1,centre)
+    # Initialize the overlap count=#
+    overlap_count = 0
+    mrptol = dist_from_point
+    overlap_count += checkcirclerotations(target_point, mrptol, allcirclecentre, allcirclenormal, allcircleradius, circlestokeep, dist_from_point)
+
+    overlap_count += checklinerotations(target_point, dist_from_point, badreflloc_normed)
+    overlap_count += checkgreatcirclerotations(target_point, dist_from_point, badreflloc_normed)
+
+    return overlap_count
+end
+
 function checkcirclerotations(target_point, mrptol, allcirclecentre, allcirclenormal, allcircleradius,
     circlestokeep, dist_from_point)
     # The number of circles to consider
