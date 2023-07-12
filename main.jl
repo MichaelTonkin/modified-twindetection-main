@@ -137,11 +137,9 @@ centre = SVector{3,Float64}(0.0,0.0,0.0)
 testpoint = SVector{3,Float64}(-0.2, 1.0, -0.4)
 
 MRPpoint = findpoint(testpoint,
-allu,
 allcirclecentre,
 allcirclenormal,
 allcircleradius,
-allr_dest,
 badreflloc_normed,
 0.1)
 

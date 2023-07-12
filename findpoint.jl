@@ -1,10 +1,8 @@
 function findpoint(
     target_point,
-    allu,
     allcirclecentre,
     allcirclenormal,
     allcircleradius,
-    allr_dest,
     badreflloc_normed,
     dist_from_point=0.001 #the distance from the point described where we check for overlaps.
     )
