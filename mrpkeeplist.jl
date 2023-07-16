@@ -47,6 +47,8 @@ function make_mrpkeeplist(
     for i in 1:numcircles
         
         # Tolerance in MRP space. If a point in MRP space is within this distance of a circle then it is a possible twin rotation.
+        #deltamax is radius of the cloud around B.
+        #rdiff is the difference in the distance from the origin of A and B
         mrptol = calc_mrptol(sqrt(deltamax^2-rdiff[cld(i,2)]^2),allr_dest_circles[i])
 
         # Tolerance in MRP "coordinate" space (i.e. zoomed out by 1/resolution) for voxels to be stored
