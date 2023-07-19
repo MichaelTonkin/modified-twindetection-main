@@ -1,4 +1,4 @@
-using LinearAlgebra, StaticArrays, Rotations, BenchmarkTools, Profile, PProf
+using LinearAlgebra, StaticArrays, Rotations, BenchmarkTools, Profile, PProf, Plots
 
 include("findpointpairs.jl")
 
@@ -126,6 +126,7 @@ allr_dest = allr[destindices]
 allr_badrefl = allr[badreflectionindices]
 centre = SVector{3,Float64}(0.0,0.0,0.0)
 
+
 function particle_swarm_optimization(f, bounds, allcirclecentre,
     allcirclenormal,
     allcircleradius,
@@ -143,15 +144,18 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
     )
 
     dim = length(bounds[:, 1])
+    center = zeros(dim)
+    radius = 1
     pos = [rand(dim) .* (bounds[:, 2] - bounds[:, 1]) .+ bounds[:, 1] for _ in 1:num_particles]
     vel = [rand(dim) for _ in 1:num_particles]
     pbest_pos = copy(pos)
     pbest_val = [f(pos[i], options) for i in 1:num_particles]
     values_above_threshold = []
-
+    trajectory = []
     w = 0.7
     c1 = 1.4
     c2 = 1.4
+    examined_p = []
 
     for _ in 1:max_iter
         for i in 1:num_particles
@@ -159,7 +163,10 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
             pos[i] = pos[i] .+ vel[i]
 
             # enforce bounds
-            pos[i] = min.(max.(pos[i], bounds[:, 1]), bounds[:, 2])
+            distance_to_center = norm(pos[i] - center)
+            if distance_to_center > radius
+                pos[i] = center + (pos[i] - center) / distance_to_center * radius
+            end
 
             # check if the function value exceeds the threshold
             current_val = f(pos[i], options)
@@ -171,11 +178,27 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
                 pbest_val[i] = current_val
                 pbest_pos[i] = pos[i]
             end 
+            push!(trajectory, (copy(pos[i]), i))
+            if i == 30
+                push!(examined_p, (copy(pos[i]), i))
+            end
         end
     end
 
+    p = plot(legend = false) # create a plot with no legend
+    for i in 1:num_particles
+        particle_trajectory = [pos for (pos, id) in trajectory if id == i]
+        xs = [pos[1] for pos in particle_trajectory]
+        ys = [pos[2] for pos in particle_trajectory]
+        zs = [pos[3] for pos in particle_trajectory]
+        scatter!(p, xs, ys, zs, m = (2, 0.5, :blue))
+    end
+    
+    display(p)
+
     return values_above_threshold
 end
+
 
 # Problem bounds
 bounds = [-1 1; -1 1; -1 1]
