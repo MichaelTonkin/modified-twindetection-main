@@ -126,7 +126,7 @@ allr_dest = allr[destindices]
 allr_badrefl = allr[badreflectionindices]
 centre = SVector{3,Float64}(0.0,0.0,0.0)
 
-# @profile 
+
 
 function particle_swarm_optimization(f, bounds, allcirclecentre,
     allcirclenormal,
