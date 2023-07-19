@@ -126,8 +126,6 @@ allr_dest = allr[destindices]
 allr_badrefl = allr[badreflectionindices]
 centre = SVector{3,Float64}(0.0,0.0,0.0)
 
-
-
 function particle_swarm_optimization(f, bounds, allcirclecentre,
     allcirclenormal,
     allcircleradius,
@@ -169,7 +167,7 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
                 push!(values_above_threshold, (pos[i], current_val))
             end
 
-            if current_val < pbest_val[i]
+            if current_val < pbest_val[i] && !(current_val in(values_above_threshold)) #and it is not in the values above threshold list
                 pbest_val[i] = current_val
                 pbest_pos[i] = pos[i]
             end 
