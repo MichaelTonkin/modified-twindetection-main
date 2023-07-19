@@ -132,14 +132,16 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
     allcirclenormal,
     allcircleradius,
     badreflloc_normed,
-    dist_from_point=0.001, num_particles=30, max_iter=100, threshold=20)
+    allr_dest, 
+    allr_badrefl, num_particles=30, max_iter=100, threshold=20)
 
     options = Dict(
         "allcirclecentre" => allcirclecentre,
         "allcirclenormal" => allcirclenormal,
         "allcircleradius" => allcircleradius,
         "badreflloc_normed" => badreflloc_normed,
-        "dist_from_point" => dist_from_point
+        "allr_dest" => allr_dest,
+        "allr_badrefl" => allr_badrefl
     )
 
     dim = length(bounds[:, 1])
@@ -170,7 +172,7 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
             if current_val < pbest_val[i]
                 pbest_val[i] = current_val
                 pbest_pos[i] = pos[i]
-            end
+            end 
         end
     end
 
@@ -186,8 +188,9 @@ best_position = particle_swarm_optimization(findpoint, bounds, allcirclecentre,
 allcirclenormal,
 allcircleradius,
 badreflloc_normed,
-0.1)
-println("Best position found: ", length(best_position))
+allr_dest, 
+allr_badrefl)
+println("Num of values above threshold: ", length(best_position))
 #println("Best value found: ", f(best_position))
 
 #I think all we need to do is define the bounds as a unit sphere and then map the rotations to their given coordinates. 

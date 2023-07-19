@@ -141,7 +141,8 @@ allcirclecentre,
 allcirclenormal,
 allcircleradius,
 badreflloc_normed,
-0.1)
+allr_dest,
+allr_badrefl)
 
 
 MRPpoint
