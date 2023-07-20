@@ -147,6 +147,7 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
     center = zeros(dim)
     radius = 1
     pos = [rand(dim) .* (bounds[:, 2] - bounds[:, 1]) .+ bounds[:, 1] for _ in 1:num_particles]
+
     vel = [rand(dim) for _ in 1:num_particles]
     pbest_pos = copy(pos)
     pbest_val = [f(pos[i], options) for i in 1:num_particles]
@@ -170,11 +171,12 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
 
             # check if the function value exceeds the threshold
             current_val = f(pos[i], options)
+            println(current_val)
             if current_val > threshold
                 push!(values_above_threshold, (pos[i], current_val))
             end
 
-            if current_val < pbest_val[i] && !(current_val in(values_above_threshold)) #and it is not in the values above threshold list
+            if (current_val < pbest_val[i])#and it is not in the values above threshold list
                 pbest_val[i] = current_val
                 pbest_pos[i] = pos[i]
             end 
@@ -185,16 +187,21 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
         end
     end
 
-    p = plot(legend = false) # create a plot with no legend
+    #plotly()  # use plotly backend
+    
+    p = plot(legend = false)  # create a plot with no legend
+    
     for i in 1:num_particles
         particle_trajectory = [pos for (pos, id) in trajectory if id == i]
         xs = [pos[1] for pos in particle_trajectory]
         ys = [pos[2] for pos in particle_trajectory]
         zs = [pos[3] for pos in particle_trajectory]
-        scatter!(p, xs, ys, zs, m = (2, 0.5, :blue))
+        plot!(p, xs, ys, zs, color = :blue, label = false)  # plot trajectories
+        scatter!(p, xs, ys, zs, m = (2, 0.5, :blue), label = false)  # highlight individual positions
     end
     
     display(p)
+    
 
     return values_above_threshold
 end
