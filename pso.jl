@@ -149,6 +149,9 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
     radius = 1
     pos = [rand(dim) .* (bounds[:, 2] - bounds[:, 1]) .+ bounds[:, 1] for _ in 1:num_particles]
 
+    tabu_list = []
+    proximity_threshold = 0.1 
+
     vel = [rand(dim) for _ in 1:num_particles]
     pbest_pos = copy(pos)
     pbest_val = [f(pos[i], options) for i in 1:num_particles]
@@ -170,9 +173,18 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
 
             # check if the function value exceeds the threshold
             current_val = f(pos[i], options)
-            
+
+            # check if the new position is close to any position in the tabu list
+            for tabu_pos in tabu_list
+                if norm(pos[i] - tabu_pos) <= proximity_threshold
+                    current_val = 0
+                    break
+                end
+            end
+
             if current_val > threshold
                 push!(values_above_threshold, (pos[i], current_val))
+                push!(tabu_list, pos[i])
             end
 
             if (current_val < pbest_val[i]) && !(in(current_val, values_above_threshold))#and it is not in the values above threshold list
@@ -184,7 +196,7 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
             
         end
     end
-
+    println(tabu_list)
     return values_above_threshold
 end
 
@@ -233,3 +245,7 @@ println("Num of values above threshold: ", length(best_position))
 #println("Best value found: ", f(best_position))
 
 #I think all we need to do is define the bounds as a unit sphere and then map the rotations to their given coordinates. 
+
+#1. if current_val >= threshold, save coordinate to array called tabu_list
+#2. in each step, check if we are close to any coordinates in the tabu_list.
+#3. if we are close to any coordinates in the tabu list, set current_val to 0. 
