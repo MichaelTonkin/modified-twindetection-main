@@ -48,13 +48,13 @@ function checkcirclerotations(target_point, allcirclecentre, allcirclenormal, al
     allr_dest_circles = allr_dest[cld.(circlestokeep,2)]
     # For each circle, we will check if the target_point is within the circle
     for i in 1:numcircles       
-
         
         # Tolerance in MRP space. If a point in MRP space is within this distance of a circle then it is a possible twin rotation.
         mrptol = calc_mrptol(sqrt(deltamax^2-rdiff[cld(i,2)]^2),allr_dest_circles[i])
-
+        coordtol = 0.5*sqrt(3.0) + mrptol
+        
         # Check if the target_point is within mrptol of the circle
-        if circledistcheck(target_point, allcirclecentre[i], allcirclenormal[i], allcircleradius[i], mrptol)
+        if circledistcheck(target_point, allcirclecentre[i], allcirclenormal[i], allcircleradius[i], 0.08)
             # If it is, increment the overlap count
             overlap_count += 1
         end
@@ -86,6 +86,7 @@ function checklinerotations(target_point, badreflloc_normed, allr_badrefl)
             overlap_count += 1
         end
     end
+    
     return overlap_count
 end
 
@@ -107,7 +108,7 @@ function checkgreatcirclerotations(target_point, badreflloc_normed, allr_badrefl
         # Tolerance in MRP space. If a point in MRP space is within this distance of a circle then it is a possible twin rotation.
         mrptol = calc_mrptol(deltamax,allr_greatcircle[i])
         # Check if the target_point is within mrptol of the circle
-        if fullcircledistcheck(target_point, SVector{3,Float64}(0,0,0), allnormal_greatcircle[i], 1.0, 1.0)
+        if fullcircledistcheck(target_point, SVector{3,Float64}(0,0,0), allnormal_greatcircle[i], 1.0, mrptol)
             # If it is, increment the overlap count
             overlap_count += 1
         end

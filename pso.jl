@@ -125,6 +125,7 @@ keepcriterion = 20
 allr_dest = allr[destindices]
 allr_badrefl = allr[badreflectionindices]
 centre = SVector{3,Float64}(0.0,0.0,0.0)
+particle_trajectory = []
 
 
 function particle_swarm_optimization(f, bounds, allcirclecentre,
@@ -152,13 +153,11 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
     pbest_pos = copy(pos)
     pbest_val = [f(pos[i], options) for i in 1:num_particles]
     values_above_threshold = []
-    trajectory = []
     w = 0.7
     c1 = 1.4
     c2 = 1.4
-    examined_p = []
 
-    for _ in 1:max_iter
+    for j in 1:max_iter
         for i in 1:num_particles
             vel[i] = w .* vel[i] .+ c1 .* rand() .* (pbest_pos[i] - pos[i]) .+ c2 .* rand() .* (pbest_pos[i] - pos[i])
             pos[i] = pos[i] .+ vel[i]
@@ -171,45 +170,57 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
 
             # check if the function value exceeds the threshold
             current_val = f(pos[i], options)
-            println(current_val)
+            
             if current_val > threshold
                 push!(values_above_threshold, (pos[i], current_val))
             end
 
-            if (current_val < pbest_val[i])#and it is not in the values above threshold list
+            if (current_val < pbest_val[i]) && !(in(current_val, values_above_threshold))#and it is not in the values above threshold list
                 pbest_val[i] = current_val
                 pbest_pos[i] = pos[i]
             end 
-            push!(trajectory, (copy(pos[i]), i))
-            if i == 30
-                push!(examined_p, (copy(pos[i]), i))
-            end
+
+            push!(particle_trajectory, (copy(pos[i]), i))
+            
         end
     end
 
-    #plotly()  # use plotly backend
+    return values_above_threshold
+end
+
+function plot_pso(trajectory, num_particles)
+
+    plotly()  # use plotly backend
     
     p = plot(legend = false)  # create a plot with no legend
     
     for i in 1:num_particles
         particle_trajectory = [pos for (pos, id) in trajectory if id == i]
+        # Calculate the data range
         xs = [pos[1] for pos in particle_trajectory]
         ys = [pos[2] for pos in particle_trajectory]
         zs = [pos[3] for pos in particle_trajectory]
-        plot!(p, xs, ys, zs, color = :blue, label = false)  # plot trajectories
-        scatter!(p, xs, ys, zs, m = (2, 0.5, :blue), label = false)  # highlight individual positions
-    end
-    
-    display(p)
-    
 
-    return values_above_threshold
+        plot!(p, xs, ys, zs, color = :blue, label = false)  # plot trajectories
+        marker_size = 3  # size based on range of plot
+        scatter!(p, xs, ys, zs, m = (marker_size, 0.5, :blue), label = false)
+    end
+
+    # create a grid of points representing the sphere surface
+    theta = range(0, stop=2pi, length=100)
+    phi = range(0, stop=pi, length=100)
+    x = [cos(t)*sin(p) for t in theta, p in phi]
+    y = [sin(t)*sin(p) for t in theta, p in phi]
+    z = [cos(p) for t in theta, p in phi]
+
+    # add the sphere to the plot
+    surface!(p, x, y, z, alpha=0.3, color=:red, light=true)
+
+    display(p)
+
 end
 
-
-# Problem bounds
 bounds = [-1 1; -1 1; -1 1]
-
 
 # Run PSO
 best_position = particle_swarm_optimization(findpoint, bounds, allcirclecentre,

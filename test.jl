@@ -194,7 +194,7 @@ end
 finalkeptmrps = newnewnewkeptmrps #this is the variable we are looking at
 
 println("The length of the array is: ", length(finalkeptmrps))
-#=
+
 xyzforplot = fill(0.0,length(finalkeptmrps),3)
 for j in 1:length(finalkeptmrps)
     xyzforplot[j,:] = finalkeptmrps[j]
@@ -281,7 +281,7 @@ sourcelist = vcat(allhkl[sourceindices[cld.(relcircles,2)]],allhkl[badreflection
 destlist = vcat(allhkl[destindices[cld.(relcircles,2)]],allhkl[badreflectionindices[rellines]],allhkl[badreflectionindices[relgreatcircles]])
 
 
-=#
+
 #= THINGS TO DO
 * Set up more elegant system for iterative updating of MRPs
 * Set up conversion of MRPs into axis/angle, rotation matrix, or other interpretation
