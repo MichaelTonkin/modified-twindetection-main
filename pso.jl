@@ -196,7 +196,7 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
             
         end
     end
-    println(tabu_list)
+    
     return values_above_threshold
 end
 
