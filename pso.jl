@@ -1,4 +1,4 @@
-using LinearAlgebra, StaticArrays, Rotations, BenchmarkTools, Profile, PProf, Plots
+using LinearAlgebra, StaticArrays, Rotations, BenchmarkTools, Profile, PProf, Plots, CSV, DataFrames
 
 include("findpointpairs.jl")
 
@@ -133,7 +133,7 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
     allcircleradius,
     badreflloc_normed,
     allr_dest, 
-    allr_badrefl, num_particles=30, max_iter=100, threshold=20)
+    allr_badrefl, num_particles=100, max_iter=100, threshold=20)
 
     options = Dict(
         "allcirclecentre" => allcirclecentre,
@@ -156,13 +156,13 @@ function particle_swarm_optimization(f, bounds, allcirclecentre,
     pbest_pos = copy(pos)
     pbest_val = [f(pos[i], options) for i in 1:num_particles]
     values_above_threshold = []
-    w = 0.7
-    c1 = 1.4
-    c2 = 1.4
+    w = 0.7 #inertia weight
+    c1 = 1.4 #cognitive constant
+    c2 = 0 #social constant (redundant)
 
     for j in 1:max_iter
         for i in 1:num_particles
-            vel[i] = w .* vel[i] .+ c1 .* rand() .* (pbest_pos[i] - pos[i]) .+ c2 .* rand() .* (pbest_pos[i] - pos[i])
+            vel[i] = w .* vel[i] .+ c1 .* rand()# .* (pbest_pos[i] - pos[i]) .+ c2 .* rand() .* (gbest_pos - pos[i])
             pos[i] = pos[i] .+ vel[i]
 
             # enforce bounds
@@ -232,16 +232,49 @@ function plot_pso(trajectory, num_particles)
 
 end
 
-bounds = [-1 1; -1 1; -1 1]
+function run_pso(num_particles, max_iter)
 
-# Run PSO
-best_position = particle_swarm_optimization(findpoint, bounds, allcirclecentre,
-allcirclenormal,
-allcircleradius,
-badreflloc_normed,
-allr_dest, 
-allr_badrefl)
-println("Num of values above threshold: ", length(best_position))
+    bounds = [-1 1; -1 1; -1 1]
+
+    result = particle_swarm_optimization(findpoint, bounds, allcirclecentre,
+    allcirclenormal,
+    allcircleradius,
+    badreflloc_normed,
+    allr_dest, 
+    allr_badrefl,
+    num_particles, max_iter)
+
+    println("Num of values above threshold: ", length(result))
+end
+
+function test_pso()
+
+    println("Testing run_pso with 15, 100")
+    result, time_taken, bytes_allocated, gc_flag = @timed run_pso(30, 100)
+    println("Time taken: ", time_taken, " seconds")
+
+    println("Testing run_pso with 30, 100")
+    result, time_taken, bytes_allocated, gc_flag = @timed run_pso(30, 100)
+    println("Time taken: ", time_taken, " seconds")
+
+    println("Testing run_pso with 60, 100")
+    result, time_taken, bytes_allocated, gc_flag = @timed run_pso(60, 100)
+    println("Time taken: ", time_taken, " seconds")
+
+    println("Testing run_pso with 90, 100")
+    result, time_taken, bytes_allocated, gc_flag = @timed run_pso(90, 100)
+    println("Time taken: ", time_taken, " seconds")
+
+    println("Testing run_pso with 120, 100")
+    result, time_taken, bytes_allocated, gc_flag = @timed run_pso(120, 100)
+    println("Time taken: ", time_taken, " seconds")
+
+    #println("Testing run_pso with 30, 1000")
+    #result, time_taken, bytes_allocated, gc_flag = @timed run_pso(30, 1000)
+    #println("Time taken: ", time_taken, " seconds")
+end
+
+test_pso()
 #println("Best value found: ", f(best_position))
 
 #I think all we need to do is define the bounds as a unit sphere and then map the rotations to their given coordinates. 
