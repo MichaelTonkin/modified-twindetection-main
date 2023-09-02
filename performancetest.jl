@@ -112,7 +112,7 @@ allloc_normed
 # ROTATIONS MATERIAL BELOW HERE
 
 include("findrotations.jl")
-include("mrpkeeplist copy.jl")
+include("mrpkeeplist.jl")
 
 # Resolution factor at each round
 prevresolution = 2.0
@@ -130,46 +130,63 @@ centre = SVector{3,Float64}(0.0,0.0,0.0)
 
 function benchmark_mrpkeeplist(resolution,keepcriterion,allu,allv,allphi,allcirclecentre,allcirclenormal,allcircleradius,allr_dest,
     rdiff,badreflloc_normed,allr_badrefl,deltamax,prevresolution,centre,firstround)
-    test_nums = 100
+    test_nums = 10
+    println("starting tests")
 
     #println("Resolution: $resolution. Firstround: $firstround")
     benchmark_result = @benchmark make_mrpkeeplist($resolution, $keepcriterion, $allu, $allv, $allphi, $allcirclecentre, $allcirclenormal, $allcircleradius, 
     $allr_dest, $rdiff, $badreflloc_normed, $allr_badrefl, $deltamax, $prevresolution, $centre, $firstround) samples=test_nums
-    save_bm_results(benchmark_result)
+    save_bm_results(benchmark_result, resolution)
 end
 #save stats to a variable including metadata
 #print when done
 
-final_text = ["Run, Metric, Time, \n"]
-function save_bm_results(benchmark_result)
+#final_text = ["Run, Metric, Time, \n"]
+final_text = ["Resolution, Time, \n"]
+function save_bm_results(benchmark_result, resolution)
     # print detailed results   
     run_num = length(final_text)
+    # get the total time taken for all samples, in nanoseconds
+    total_time_ns = benchmark_result.times
 
-    result_text = "$(run_num), Minimum time, $(time(minimum(benchmark_result))),\n"
-    result_text *= "$(run_num), Median time, $(time(median(benchmark_result))),\n"
-    result_text *= "$(run_num), Mean time, $(time(mean(benchmark_result))),\n"
-    result_text *= "$(run_num), Maximum time, $(time(maximum(benchmark_result))),\n"
+    # convert to seconds
+    total_time_s = total_time_ns / 1e9
+    result_text = "$(resolution), $(mean(total_time_s)),\n"
+    #result_text *= "$(run_num), Minimum time, $(time(minimum(benchmark_result))),\n"
+    #result_text *= "$(run_num), Mean time, $(time(mean(benchmark_result))),\n"
+    #result_text *= "$(run_num), Maximum time, $(time(maximum(benchmark_result))),\n"
     
     push!(final_text, result_text)
         
 end 
 
+
+# Start with the initial resolution
+resolution = 0.2
+
+benchmark_mrpkeeplist(resolution,keepcriterion,allu,allv,allphi,allcirclecentre,allcirclenormal,allcircleradius,
+allr_dest,rdiff,badreflloc_normed,allr_badrefl,deltamax,2.0,centre,true)
+
+# Update resolution to 0.05
 prevresolution = resolution
-resolution = 0.25*resolution
+resolution = 0.05
 
 benchmark_mrpkeeplist(resolution,keepcriterion,allu,allv,allphi,allcirclecentre,allcirclenormal,allcircleradius,
 allr_dest,rdiff,badreflloc_normed,allr_badrefl,deltamax,prevresolution,centre,true)
 
+# Update resolution to 0.01
 prevresolution = resolution
-resolution = 0.2*resolution
+resolution = 0.01
 
 benchmark_mrpkeeplist(resolution,keepcriterion,allu,allv,allphi,allcirclecentre,allcirclenormal,allcircleradius,
 allr_dest,rdiff,badreflloc_normed,allr_badrefl,deltamax,prevresolution,centre,false)
 
+# Update resolution to 0.001
 prevresolution = resolution
-resolution = 0.1*resolution
+resolution = 0.001
 
 benchmark_mrpkeeplist(resolution,keepcriterion,allu,allv,allphi,allcirclecentre,allcirclenormal,allcircleradius,
 allr_dest,rdiff,badreflloc_normed,allr_badrefl,deltamax,prevresolution,centre,false)
+
 
 print(join(final_text, ""))

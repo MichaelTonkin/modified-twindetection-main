@@ -194,7 +194,7 @@ end
 finalkeptmrps = newnewnewkeptmrps #this is the variable we are looking at
 
 println("The length of the array is: ", length(finalkeptmrps))
-
+#=
 xyzforplot = fill(0.0,length(finalkeptmrps),3)
 for j in 1:length(finalkeptmrps)
     xyzforplot[j,:] = finalkeptmrps[j]
@@ -289,4 +289,4 @@ destlist = vcat(allhkl[destindices[cld.(relcircles,2)]],allhkl[badreflectionindi
 * Set up system to identify which pairs are involved for a given MRP (model system below)
 * Set up File IO??
 * DONE - Test with data from HKL file
-=#
+=#=#  

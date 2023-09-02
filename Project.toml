@@ -1,5 +1,7 @@
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 FlameGraphs = "08572546-2f56-4bcf-ba4e-bab62c3a3f89"
 Manifolds = "1cead3c2-87b3-11e9-0ccd-23c62b72b94e"
 ManifoldsBase = "3362f125-f0bb-47a3-aa74-596ffd7ef2fb"

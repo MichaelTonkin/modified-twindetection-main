@@ -245,36 +245,85 @@ function run_pso(num_particles, max_iter)
     num_particles, max_iter)
 
     println("Num of values above threshold: ", length(result))
+    return length(result)
 end
 
-function test_pso()
 
-    println("Testing run_pso with 15, 100")
-    result, time_taken, bytes_allocated, gc_flag = @timed run_pso(30, 100)
-    println("Time taken: ", time_taken, " seconds")
+function test_pso_particles()
+    # Assuming run_pso is already defined in your code
+    # function run_pso(x, y)
+    #     # Your function implementation here
+    # end
 
-    println("Testing run_pso with 30, 100")
-    result, time_taken, bytes_allocated, gc_flag = @timed run_pso(30, 100)
-    println("Time taken: ", time_taken, " seconds")
+    # Initialize an empty DataFrame
+    df = DataFrame(
+        Particles = Int[], 
+        Iterations = Int[],
+        Run = Int[], 
+        Result = Int[], 
+        Time_Taken = Float64[], 
+        Bytes_Allocated = Float64[]
+    )
 
-    println("Testing run_pso with 60, 100")
-    result, time_taken, bytes_allocated, gc_flag = @timed run_pso(60, 100)
-    println("Time taken: ", time_taken, " seconds")
+    # Initialize an empty DataFrame for the averages
+    df_average = DataFrame(
+        Particles = Int[], 
+        Iterations = Int[],
+        Result_Average = Float64[], 
+        Time_Taken_Average = Float64[], 
+        Bytes_Allocated_Average = Float64[]
+    )
 
-    println("Testing run_pso with 90, 100")
-    result, time_taken, bytes_allocated, gc_flag = @timed run_pso(90, 100)
-    println("Time taken: ", time_taken, " seconds")
+    pso_parameters = [15]  #, 75, 105, 135]
+    iterations = [10, 20, 30, 40, 50]
+    num_runs = 10
 
-    println("Testing run_pso with 120, 100")
-    result, time_taken, bytes_allocated, gc_flag = @timed run_pso(120, 100)
-    println("Time taken: ", time_taken, " seconds")
+    # Run your function for each parameter value
+    for param in pso_parameters
+        for iter in iterations
+            for i in 1:num_runs
+                result, time_taken, bytes_allocated, gc_flag = @timed run_pso(param, iter)
+                push!(df, Dict(
+                    :Particles => param, 
+                    :Iterations => iter,
+                    :Run => i, 
+                    :Result => result, 
+                    :Time_Taken => time_taken, 
+                    :Bytes_Allocated => bytes_allocated
+                ))
+            end
+
+            # Compute the averages
+            average_row = Dict(
+                :Particles => param, 
+                :Iterations => iter,
+                :Result_Average => ceil(mean(filter(row -> row.Particles == param && row.Iterations == iter, df).Result)),
+                :Time_Taken_Average => mean(filter(row -> row.Particles == param && row.Iterations == iter, df).Time_Taken),
+                :Bytes_Allocated_Average => mean(filter(row -> row.Particles == param && row.Iterations == iter, df).Bytes_Allocated)
+            )
+
+            # Append the new row to df_average
+            push!(df_average, average_row)
+        end
+    end
+
+    # Save the detailed DataFrame to a CSV file
+    CSV.write("results_detailed.csv", df)
+
+    # Save the averages DataFrame to a CSV file
+    CSV.write("results_average.csv", df_average)
+end
+
+
+
+
 
     #println("Testing run_pso with 30, 1000")
     #result, time_taken, bytes_allocated, gc_flag = @timed run_pso(30, 1000)
     #println("Time taken: ", time_taken, " seconds")
-end
 
-test_pso()
+
+test_pso_particles()
 #println("Best value found: ", f(best_position))
 
 #I think all we need to do is define the bounds as a unit sphere and then map the rotations to their given coordinates. 
